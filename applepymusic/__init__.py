@@ -185,7 +185,7 @@ class AppleMusicClient(object):
         )
 
     def get_song(self, id, storefront='us', include=None):
-        """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetaSingleSong.html#//apple_ref/doc/uid/TP40017625-CH22-SW1
+        """https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
         """
         params = {}
         if include:
@@ -197,7 +197,7 @@ class AppleMusicClient(object):
         )
 
     def get_songs(self, ids, storefront='us', include=None):
-        """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetMultipleSongs.html#//apple_ref/doc/uid/TP40017625-CH30-SW1
+        """https://developer.apple.com/documentation/applemusicapi/get_multiple_catalog_songs_by_id
         """
         params = {'ids': ','.join(ids)}
         if include:
@@ -209,7 +209,7 @@ class AppleMusicClient(object):
         )
 
     def get_songs_by_isrc(self, isrc, storefront='us', include=None):
-        """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetMultipleSongs.html#//apple_ref/doc/uid/TP40017625-CH30-SW1
+        """https://developer.apple.com/documentation/applemusicapi/get_multiple_catalog_songs_by_isrc
         """
         params = {'filter[isrc]': isrc}
         if include:
