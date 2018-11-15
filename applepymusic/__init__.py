@@ -471,3 +471,10 @@ class AppleMusicClient(object):
             endpoint='/me/library/songs',
             params=params,
         )
+
+    def test(self):
+        """
+        https://api.music.apple.com/v1/test
+        https://developer.apple.com/documentation/applemusicapi/getting_keys_and_creating_tokens
+        """
+        return self._make_request(method='GET', endpoint='/test')
