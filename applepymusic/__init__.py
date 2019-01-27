@@ -20,6 +20,7 @@ import datetime
 import jwt
 import json
 import requests
+import time
 
 
 BASE_URL = 'https://api.music.apple.com'
@@ -36,6 +37,8 @@ TRACK_TYPE_SONGS = 'songs'
 TRACK_TYPE_MUSIC_VIDEOS = 'music-videos'
 TRACK_TYPE_LIBRARY_SONGS = 'library-songs'
 TRACK_TYPE_LIBRARY_MUSIC_VIDEOS = 'library-music-videos'
+
+storefront_default = 'ca'
 
 
 class AppleMusicClient(object):
@@ -79,21 +82,25 @@ class AppleMusicClient(object):
 
     def _generate_developer_token(self, team_id, key_id, private_key):
         algorithm = 'ES256'
-        time_now = datetime.datetime.now()
-        time_expired = time_now + datetime.timedelta(hours=12)
+        time_now = time.time()
+        time_expired = time_now + 260000
+
         payload = {
             'iss': team_id,
-            'exp': int(time_expired.strftime('%s')),
-            'iat': int(time_now.strftime('%s')),
+            'exp': int(time_expired),
+            'iat': int(time_now),
         }
         headers = {
             'alg': algorithm,
-            'kid': key_id,
+            'kid': bytes(key_id),
         }
-        return jwt.encode(payload,
-                          private_key,
-                          algorithm=algorithm,
-                          headers=headers)
+
+        """Create an auth token"""
+        token = jwt.encode(payload, private_key, algorithm=algorithm, headers=headers)
+        token_str = token.decode('utf-8')  # converts bytes to string
+
+        return token
+
 
     def _request_method(self, method):
         return {
@@ -165,7 +172,7 @@ class AppleMusicClient(object):
 
     """API Endpoints"""
 
-    def search(self, query, limit=None, offset=None, storefront='us',
+    def search(self, query, limit=None, offset=None, storefront=storefront_default,
                types=TRACK_TYPE_SONGS):
         """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/Searchforresources.html#//apple_ref/doc/uid/TP40017625-CH58-SW1
         """
@@ -184,7 +191,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_song(self, id, storefront='us', include=None):
+    def get_song(self, id, storefront=storefront_default, include=None):
         """https://developer.apple.com/documentation/applemusicapi/get_a_catalog_song
         """
         params = {}
@@ -196,7 +203,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_songs(self, ids, storefront='us', include=None):
+    def get_songs(self, ids, storefront=storefront_default, include=None):
         """https://developer.apple.com/documentation/applemusicapi/get_multiple_catalog_songs_by_id
         """
         params = {'ids': ','.join(ids)}
@@ -208,7 +215,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_songs_by_isrc(self, isrc, storefront='us', include=None):
+    def get_songs_by_isrc(self, isrc, storefront=storefront_default, include=None):
         """https://developer.apple.com/documentation/applemusicapi/get_multiple_catalog_songs_by_isrc
         """
         params = {'filter[isrc]': isrc}
@@ -220,7 +227,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_playlist(self, id, storefront='us', include=None):
+    def get_playlist(self, id, storefront=storefront_default, include=None):
         """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetaSinglePlaylist.html#//apple_ref/doc/uid/TP40017625-CH20-SW1
         """
         params = {}
@@ -232,7 +239,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_playlists(self, ids, storefront='us', include=None):
+    def get_playlists(self, ids, storefront=storefront_default, include=None):
         """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetMultiplePlaylists.html#//apple_ref/doc/uid/TP40017625-CH21-SW1
         """
         params = {'ids': ','.join(ids)}
@@ -244,7 +251,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_genre(self, id, storefront='us', include=None):
+    def get_genre(self, id, storefront=storefront_default, include=None):
         """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetaSingleGenres.html#//apple_ref/doc/uid/TP40017625-CH16-SW1
         """
         params = {}
@@ -256,7 +263,7 @@ class AppleMusicClient(object):
             params=params,
         )
 
-    def get_genres(self, ids, storefront='us', include=None):
+    def get_genres(self, ids, storefront=storefront_default, include=None):
         """https://developer.apple.com/library/content/documentation/NetworkingInternetWeb/Conceptual/AppleMusicWebServicesReference/GetMultipleGenres.html#//apple_ref/doc/uid/TP40017625-CH17-SW1
         """
         params = {'ids': ','.join(ids)}
